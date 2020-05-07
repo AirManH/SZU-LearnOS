@@ -6,13 +6,14 @@ set_property(TARGET reader_writer PROPERTY AUTOMOC ON)
 
 find_package(
         Qt5
-        COMPONENTS Core
+        COMPONENTS Core Widgets
         REQUIRED)
 
 target_link_libraries(reader_writer
         PRIVATE
             read_write_manager
-            Qt5::Core)
+            Qt5::Core
+            Qt5::Widgets)
 
 target_sources(reader_writer
     PRIVATE
