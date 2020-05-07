@@ -5,23 +5,26 @@
 #include <szu-learnos-utils.hpp>
 #include <utility>
 
-void los::Reader::run()
+namespace los
 {
-    // here we lock r_mutex for increasing reader_count
-    this->r_mutex.lock();
 
-    if (this->reader_count == 0) {
+void Reader::read(quint32 reader_count, QMutex &r_mutex, QMutex &w_mutex, const QString &path)
+{
+    // here we lock rMutex for increasing reader_count
+    r_mutex.lock();
+
+    if (reader_count == 0) {
         // reader count == 0 means that
         // there may be writer working,
         // since we have to lock the w_mutex
-        this->w_mutex.lock();
+        w_mutex.lock();
     }
     reader_count += 1;
 
-    this->r_mutex.unlock();
+    r_mutex.unlock();
 
     // actually read here
-    QFile data(this->path);
+    QFile data(path);
     if (data.open(QFile::ReadOnly | QFile::Truncate)) {
         QTextStream in(&data);
         QString text;
@@ -32,74 +35,85 @@ void los::Reader::run()
 
 
     // here we lock r_mutex for decreasing reader_count
-    this->r_mutex.lock();
+    r_mutex.lock();
 
     reader_count -= 1;
-    if (this->reader_count == 0) {
+    if (reader_count == 0) {
         // now reader_count == 0 means that
         // after reading, there is no more readers,
         // so writers may get the lock.
-        this->w_mutex.unlock();
+        w_mutex.unlock();
     }
 
-    this->r_mutex.unlock();
+    r_mutex.unlock();
 }
 
-los::Reader::Reader(QObject *parent, quint32 &readerCount, QMutex &rMutex, QMutex &wMutex, const QString &path)
-    : QThread(parent), reader_count(readerCount), r_mutex(rMutex), w_mutex(wMutex), path(path)
-{}
-
-
-void los::Writer::run()
+void Writer::write(QMutex &w_mutex, const QString &path, const QString &content)
 {
-    this->w_mutex.lock();
+    w_mutex.lock();
 
-    QFile data(this->path);
+    QFile data(path);
     if (data.open(QFile::WriteOnly | QFile::Truncate)) {
         QTextStream out(&data);
-        out << this->content;
+        out << content;
     }
 
     qDebug() << "writing\n";
 
-    this->w_mutex.unlock();
+    w_mutex.unlock();
 }
 
-los::Writer::Writer(QObject *parent, QMutex &wMutex, const QString &path, const QString &content)
-    : QThread(parent), w_mutex(wMutex), path(path), content(content)
+void ReadWriteManager::add_readers(quint32 n)
+{
+    for (auto i: range(n)) {
+        auto p_worker = QPointer<Reader>(new Reader());
+        auto p_thread = QPointer<QThread>(new QThread);
+        p_worker->moveToThread(p_thread);
+        connect(p_thread, &QThread::finished,
+                p_worker, &Reader::deleteLater);
+        connect(this, &ReadWriteManager::all_threads_begin_read,
+                p_worker, &Reader::read);
+        connect(p_worker, &Reader::result_ready, this,
+                &ReadWriteManager::get_one_reader_result);
+        p_thread->start();
+    }
+}
+
+void ReadWriteManager::add_writers(quint32 n)
+{
+    for (auto i: range(n)) {
+        auto p_worker = QPointer<Writer>(new Writer);
+        auto p_thread = QPointer<QThread>(new QThread);
+        p_worker->moveToThread(p_thread);
+        connect(p_thread, &QThread::finished,
+                p_worker, &Writer::deleteLater);
+        connect(this, &ReadWriteManager::all_threads_begin_write,
+                p_worker, &Writer::write);
+        p_thread->start();
+    }
+}
+
+ReadWriteManager::~ReadWriteManager()
+{
+    for (auto p: this->reader_threads) {
+        p->quit();
+        p->wait();
+    }
+    for (auto p: this->writer_threads) {
+        p->quit();
+        p->wait();
+    }
+}
+void ReadWriteManager::run()
+{
+    emit all_threads_begin_read(this->reader_count, this->r_mutex, this->w_mutex, this->file_path);
+    emit all_threads_begin_write(this->w_mutex, this->file_path, "aa");
+}
+void ReadWriteManager::get_one_reader_result(const QString &s)
 {}
 
-los::ReadWriteManager::ReadWriteManager(QString filePath)
-    : file_path(std::move(filePath)), w_mutex(), r_mutex(), reader_count(0)
+ReadWriteManager::ReadWriteManager(QObject *parent, const QString &filePath)
+    : QObject(parent), file_path(filePath)
 {}
 
-void los::ReadWriteManager::add_readers(quint32 n)
-{
-        foreach(quint64 i, los::range(n)) {
-            auto *reader = new los::Reader(this, this->reader_count, this->r_mutex, this->w_mutex, this->file_path);
-            QPointer<los::Reader> p_reader(reader);
-            this->reader_threads.append(p_reader);
-            p_reader->start();
-        }
-}
-
-void los::ReadWriteManager::add_writers(quint32 n)
-{
-        foreach(quint64 i, los::range(n)) {
-            auto content = QString("Writer: %1\n").arg(this->writer_threads.size());
-            auto *writer = new los::Writer(this, this->w_mutex, this->file_path, content);
-            QPointer<los::Writer> p_writer(writer);
-            this->writer_threads.append(p_writer);
-            p_writer->start();
-        }
-}
-
-los::ReadWriteManager::~ReadWriteManager()
-{
-    foreach (auto p, this->reader_threads) {
-        p->wait(10);
-    }
-    foreach (auto p, this->writer_threads) {
-        p->wait(10);
-    }
 }

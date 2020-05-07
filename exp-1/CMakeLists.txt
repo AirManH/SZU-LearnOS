@@ -2,6 +2,8 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/read_write_manager)
 
 add_executable(reader_writer)
 
+set_property(TARGET reader_writer PROPERTY AUTOMOC ON)
+
 find_package(
         Qt5
         COMPONENTS Core
@@ -13,4 +15,5 @@ target_link_libraries(reader_writer
             Qt5::Core)
 
 target_sources(reader_writer
-        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/app/main.cpp)
+    PRIVATE
+        app/main.cpp)
