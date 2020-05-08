@@ -22,4 +22,13 @@ QList<qint64> range(qint64 end)
     return range(0, end);
 }
 
+void Loggable::debug(const QString &s)
+{
+    emit to_debug(s);
+}
+void Loggable::info(const QString &s)
+{
+    emit to_info(s);
+}
+
 }
