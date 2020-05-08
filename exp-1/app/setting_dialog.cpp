@@ -26,19 +26,23 @@ setting_dialog::setting_dialog(QDialog *parent)
 setting_dialog::~setting_dialog()
 {}
 
-void setting_dialog::when_set_reader_number(int n) {
+void setting_dialog::when_set_reader_number(int n)
+{
     this->reader_number = n;
 }
 
-void setting_dialog::when_set_writer_number(int n) {
+void setting_dialog::when_set_writer_number(int n)
+{
     this->writer_number = n;
 }
 
-void setting_dialog::when_ok_button_click(){
+void setting_dialog::when_ok_button_click()
+{
     emit confirm_numbers(writer_number, reader_number);
 }
 
-void setting_dialog::log(QString s){
+void setting_dialog::log(QString s)
+{
     ui.logger_textBrowser->append(s);
 }
 void setting_dialog::clear_log()

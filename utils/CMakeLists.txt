@@ -10,11 +10,11 @@ set_property(TARGET szu-learnos-utils PROPERTY AUTOMOC ON)
 target_link_libraries(szu-learnos-utils PRIVATE Qt5::Core)
 
 target_include_directories(szu-learnos-utils
-    PUBLIC
+        PUBLIC
         include/)
 
 target_sources(szu-learnos-utils
-    PRIVATE
+        PRIVATE
         src/szu-learnos-utils.cpp
         include/szu-learnos-utils.hpp)
 

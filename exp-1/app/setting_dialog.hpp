@@ -4,9 +4,9 @@
 #include <QDialog>
 #include <ui_setting_dialog.h>
 
-class setting_dialog : public QDialog
+class setting_dialog: public QDialog
 {
-    Q_OBJECT
+Q_OBJECT
 
 public:
     explicit setting_dialog(QDialog *parent = nullptr);

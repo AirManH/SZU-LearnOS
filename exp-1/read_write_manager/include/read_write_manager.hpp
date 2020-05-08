@@ -34,7 +34,7 @@ private:
 signals:
     void result_ready(const QString &s);
     void to_debug(QString s) override;
-    void to_info(QString s) override ;
+    void to_info(QString s) override;
 };
 
 class Writer: public QObject, public Loggable
@@ -56,7 +56,7 @@ private:
 signals:
     void write_over();
     void to_debug(QString s) override;
-    void to_info(QString s) override ;
+    void to_info(QString s) override;
 
 };
 
@@ -97,7 +97,7 @@ signals:
     void number_changed();
 
     void to_debug(QString s) override;
-    void to_info(QString s) override ;
+    void to_info(QString s) override;
 };
 
 } // namespace los

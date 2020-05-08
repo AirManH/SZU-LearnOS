@@ -12,13 +12,13 @@ find_package(
 
 target_link_libraries(reader_writer
         PRIVATE
-            read_write_manager
-            szu-learnos-utils
-            Qt5::Core
-            Qt5::Widgets)
+        read_write_manager
+        szu-learnos-utils
+        Qt5::Core
+        Qt5::Widgets)
 
 target_sources(reader_writer
-    PRIVATE
+        PRIVATE
         app/main.cpp
         app/setting_dialog.ui
         app/setting_dialog.cpp

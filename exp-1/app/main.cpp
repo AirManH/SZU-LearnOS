@@ -3,7 +3,8 @@
 #include <QObject>
 #include <QtWidgets/QApplication>
 
-void foo(quint32 w, quint32 r){
+void foo(quint32 w, quint32 r)
+{
     qDebug() << w << " " << r << Qt::endl;
 }
 
@@ -12,7 +13,7 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
 
     setting_dialog dialog;
-    auto* rwm = new los::ReadWriteManager(QString("./a.txt"));
+    auto *rwm = new los::ReadWriteManager(QString("./a.txt"));
 
     QObject::connect(&dialog, &setting_dialog::confirm_numbers,
                      rwm, &los::ReadWriteManager::set_writers_and_readers);
@@ -27,7 +28,6 @@ int main(int argc, char *argv[])
                      &dialog, &setting_dialog::log);
 
     dialog.show();
-
 
 
     return a.exec();

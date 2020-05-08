@@ -9,13 +9,13 @@ find_package(
 
 target_link_libraries(read_write_manager
         PRIVATE
-            Qt5::Core
-            szu-learnos-utils)
+        Qt5::Core
+        szu-learnos-utils)
 
 target_include_directories(read_write_manager
         PUBLIC include/)
 
 target_sources(read_write_manager
-    PRIVATE
+        PRIVATE
         src/read_write_manager.cpp
         include/read_write_manager.hpp)

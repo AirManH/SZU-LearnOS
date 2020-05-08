@@ -4,16 +4,19 @@
 #include <QList>
 #include <QObject>
 
-namespace los{
+namespace los
+{
 
 QList<qint64> range(qint64 begin, qint64 end);
 
 QList<qint64> range(qint64 end);
 
-class Loggable{
+class Loggable
+{
 
 public:
-    ~Loggable(){};
+    ~Loggable()
+    {};
 public:
     void debug(const QString &s);
     void info(const QString &s);
